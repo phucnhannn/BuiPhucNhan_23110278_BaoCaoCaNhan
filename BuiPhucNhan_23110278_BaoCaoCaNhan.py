@@ -1381,6 +1381,254 @@ def draw_state_area(screen, states_history, scroll_offset=0):
         pygame.draw.rect(screen, TILE_BORDER, scrollbar_rect, 1, border_radius=3)
     return total_content_height, scrollbar_height
 
+def compare_algorithms(puzzle_state):
+    compare_width, compare_height = 1100, 770 
+    compare_screen = pygame.display.set_mode((compare_width, compare_height))
+    pygame.display.set_caption("Algorithm Performance Comparison")
+    
+    title_font = pygame.font.Font(None, 40)
+    header_font = pygame.font.Font(None, 32)
+    text_font = pygame.font.Font(None, 24)
+    category_font = pygame.font.Font(None, 28)
+    
+    puzzle_state_tuple = tuple(map(tuple, puzzle_state))
+    goal_state_tuple = tuple(map(tuple, GOAL_STATE))
+    
+    already_solved = (puzzle_state_tuple == goal_state_tuple)
+    
+    algorithms = [
+        {"name": "BFS", "func": bfs_solve, "category": "Uninformed Search"},
+        {"name": "DFS", "func": dfs_solve, "category": "Uninformed Search"},
+        {"name": "IDDFS", "func": iddfs_solve, "category": "Uninformed Search"},
+        {"name": "UCS", "func": ucs_solve, "category": "Uninformed Search"},
+        
+        {"name": "A*", "func": astar_solve, "category": "Informed Search"},
+        {"name": "IDA*", "func": idastar_solve, "category": "Informed Search"},
+        {"name": "Greedy", "func": greedy_solve, "category": "Informed Search"},
+
+        {"name": "Beam Search", "func": beam_search_solve, "category": "Local Search"},
+        {"name": "Genetic Algorithm", "func": genetic_algorithm_solve, "category": "Local Search"},
+        {"name": "Simple Hill Climbing", "func": simple_hill_climbing_solve, "category": "Local Search"},
+        {"name": "Steepest Ascent HC", "func": steepest_ascent_hill_climbing_solve, "category": "Local Search"},
+        {"name": "Stochastic HC", "func": stochastic_hill_climbing_solve, "category": "Local Search"},
+        {"name": "Simulated Annealing", "func": simulated_annealing_solve, "category": "Local Search"},
+        
+        {"name": "Partially Observable", "func": partially_observable_search_console, "category": "Complex Environment Search"},
+        {"name": "AND-OR Tree Search", "func": and_or_tree_search_solve, "category": "Complex Environment Search"},
+        {"name": "Belief State Search", "func": belief_state_search_console, "category": "Complex Environment Search"},
+        
+        {"name": "Backtracking Search", "func": backtracking_solve, "category": "Constraint Satisfaction"},
+        {"name": "Min-Conflicts Search", "func": min_conflicts_solve, "category": "Constraint Satisfaction"},
+        
+        {"name": "Q-Learning", "func": q_learning_solve, "category": "Reinforcement Learning"}
+    ]
+    
+    running = True
+    
+    results = []
+    
+    compare_screen.fill(BACKGROUND_COLOR)
+    msg = title_font.render("Running algorithm comparison...", True, TEXT_COLOR)
+    compare_screen.blit(msg, (compare_width//2 - msg.get_width()//2, compare_height//2))
+    pygame.display.flip()
+    
+    for i, algo in enumerate(algorithms):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+        if already_solved:
+            solution = [(0, 0)]
+            exec_time = 0.000001
+        else:
+            current_puzzle = [row[:] for row in puzzle_state]
+            
+            compare_screen.fill(BACKGROUND_COLOR)
+            progress_msg = title_font.render(f"Testing: {algo['name']} ({i+1}/{len(algorithms)})...", True, TEXT_COLOR)
+            compare_screen.blit(progress_msg, (compare_width//2 - progress_msg.get_width()//2, compare_height//2))
+            
+            progress_bar_width = int((i / len(algorithms)) * 500)
+            pygame.draw.rect(compare_screen, (200, 200, 200), (compare_width//2 - 250, compare_height//2 + 50, 500, 25), border_radius=5)
+            pygame.draw.rect(compare_screen, (100, 180, 255), (compare_width//2 - 250, compare_height//2 + 50, progress_bar_width, 25), border_radius=5)
+            
+            percent_text = text_font.render(f"{int((i / len(algorithms)) * 100)}%", True, TEXT_COLOR)
+            compare_screen.blit(percent_text, (compare_width//2 - percent_text.get_width()//2, compare_height//2 + 85))
+            pygame.display.flip()
+            
+            try:
+                solution, exec_time = algo["func"](current_puzzle, GOAL_STATE)
+            except Exception as e:
+                solution = []
+                exec_time = 0
+                print(f"Error running {algo['name']}: {e}")
+        
+        results.append({
+            "name": algo["name"],
+            "category": algo["category"],
+            "solution_length": len(solution) if not already_solved else "0 (already solved)",
+            "time": exec_time,
+            "solved": len(solution) > 0 or already_solved
+        })
+    
+    categories = {}
+    for result in results:
+        if result["category"] not in categories:
+            categories[result["category"]] = []
+        categories[result["category"]].append(result)
+    
+    category_order = [
+        "Uninformed Search",
+        "Informed Search",
+        "Local Search",
+        "Complex Environment Search",
+        "Constraint Satisfaction",
+        "Reinforcement Learning"
+    ]
+    
+    sorted_categories = sorted(categories.keys(), key=lambda x: category_order.index(x) if x in category_order else 999)
+    
+    for category in categories:
+        categories[category].sort(key=lambda x: x["time"] if isinstance(x["time"], (int, float)) else 0)
+    
+    back_button = pygame.Rect(compare_width//2 - 60, compare_height - 45, 120, 35)
+    
+    scroll_y = 0
+    max_scroll = sum(len(categories.get(cat, [])) for cat in sorted_categories) * 48 + len(categories) * 40 - (compare_height - 180)
+    max_scroll = max(0, max_scroll)
+    
+    while running:
+        compare_screen.fill(BACKGROUND_COLOR)
+        mouse_pos = pygame.mouse.get_pos()
+        
+        title_bg_rect = pygame.Rect(0, 0, compare_width, 60)
+        pygame.draw.rect(compare_screen, (220, 230, 240), title_bg_rect)
+        pygame.draw.line(compare_screen, (200, 210, 220), (0, 60), (compare_width, 60), 2)
+        
+        title = title_font.render("Algorithm Performance Comparison", True, TEXT_COLOR)
+        compare_screen.blit(title, (compare_width//2 - title.get_width()//2, 20))
+        
+        if already_solved:
+            solved_msg = header_font.render("⚠️ Puzzle is already in goal state!", True, SOLVED_COLOR)
+            compare_screen.blit(solved_msg, (compare_width//2 - solved_msg.get_width()//2, 65))
+        
+        header_y = 100
+        pygame.draw.line(compare_screen, TILE_BORDER, (30, header_y), (compare_width - 30, header_y), 2)
+        
+        header_bg = pygame.Rect(30, header_y - 34, compare_width - 60, 34)
+        pygame.draw.rect(compare_screen, (230, 240, 245), header_bg)
+        
+        col_positions = [
+            ("Algorithm", 60),
+            ("Category", 330), 
+            ("Solution Steps", 580),
+            ("Time (seconds)", 780),
+            ("Status", 945)  
+        ]
+        
+        for header_text, x_pos in col_positions:
+            header = header_font.render(header_text, True, TEXT_COLOR)
+            compare_screen.blit(header, (x_pos, header_y - 28))
+        
+        content_y = header_y + 20 - scroll_y
+        row_counter = 0
+        
+        for category_name in sorted_categories:
+            if content_y > header_y:
+                category_bg = pygame.Rect(30, content_y, compare_width - 60, 36)
+                pygame.draw.rect(compare_screen, (210, 220, 235), category_bg, border_radius=5)
+                category_text = category_font.render(category_name, True, (40, 60, 80))
+                compare_screen.blit(category_text, (50, content_y + 8))
+            
+            content_y += 40
+            row_counter += 1
+            
+            for result in categories[category_name]:
+                row_y = content_y
+                if header_y < row_y < compare_height - 80:  
+                    if row_counter % 2 == 0:
+                        pygame.draw.rect(compare_screen, (240, 240, 245), 
+                                       (30, row_y, compare_width - 60, 42)) 
+                    else:
+                        pygame.draw.rect(compare_screen, (248, 248, 252), 
+                                       (30, row_y, compare_width - 60, 42)) 
+                    
+                    name = text_font.render(result["name"], True, TEXT_COLOR)
+                    compare_screen.blit(name, (col_positions[0][1], row_y + 12))
+                    
+                    category = text_font.render(result["category"], True, (80, 100, 120))
+                    compare_screen.blit(category, (col_positions[1][1], row_y + 12))
+                    
+                    length_text = str(result["solution_length"]) if result["solved"] else "N/A"
+                    length = text_font.render(length_text, True, TEXT_COLOR)
+                    compare_screen.blit(length, (col_positions[2][1], row_y + 12))
+                    
+                    time_text = f"{result['time']:.6f}"
+                    time_surface = text_font.render(time_text, True, TEXT_COLOR)
+                    compare_screen.blit(time_surface, (col_positions[3][1], row_y + 12))
+                    
+                    status_color = SOLVED_COLOR if result["solved"] else (255, 100, 100)
+                    pygame.draw.circle(compare_screen, status_color, (col_positions[4][1] + 10, row_y + 20), 8)
+                    status_text = "Solved" if result["solved"] else "No solution"
+                    status = text_font.render(status_text, True, status_color)
+                    compare_screen.blit(status, (col_positions[4][1] + 25, row_y + 12))
+                
+                content_y += 48  
+                row_counter += 1
+        
+        bottom_panel_height = 55
+        bottom_panel = pygame.Rect(0, compare_height - bottom_panel_height, compare_width, bottom_panel_height)
+        pygame.draw.rect(compare_screen, (235, 240, 245), bottom_panel)
+        pygame.draw.line(compare_screen, (210, 220, 230), (0, compare_height - bottom_panel_height), (compare_width, compare_height - bottom_panel_height), 2)
+        
+        pygame.draw.circle(compare_screen, SOLVED_COLOR, (70, compare_height - bottom_panel_height/2), 8)
+        legend_solved = text_font.render("Solved", True, TEXT_COLOR)
+        compare_screen.blit(legend_solved, (85, compare_height - bottom_panel_height/2 - 10))
+        
+        pygame.draw.circle(compare_screen, (255, 100, 100), (180, compare_height - bottom_panel_height/2), 8)
+        legend_unsolved = text_font.render("No Solution", True, TEXT_COLOR)
+        compare_screen.blit(legend_unsolved, (195, compare_height - bottom_panel_height/2 - 10))
+        
+        stats_text = text_font.render(f"Algorithms: {len(results)} | Categories: {len(sorted_categories)}", True, TEXT_COLOR)
+        compare_screen.blit(stats_text, (compare_width - stats_text.get_width() - 50, compare_height - bottom_panel_height/2 - 10))
+        
+        if max_scroll > 0:
+            scrollbar_height = (compare_height - 180) * (compare_height - 180) / (content_y + scroll_y - header_y)
+            scrollbar_height = max(40, min(scrollbar_height, compare_height - 180))
+            scrollbar_y = header_y + (scroll_y / max_scroll) * (compare_height - 180 - scrollbar_height)
+            
+            pygame.draw.rect(compare_screen, (210, 220, 230), 
+                           (compare_width - 20, header_y, 10, compare_height - 180), border_radius=5)
+            
+            pygame.draw.rect(compare_screen, BUTTON_COLOR, 
+                           (compare_width - 20, scrollbar_y, 10, scrollbar_height), border_radius=5)
+        
+        button_color = BUTTON_HOVER if back_button.collidepoint(mouse_pos) else BUTTON_COLOR
+        pygame.draw.rect(compare_screen, button_color, back_button, border_radius=8)
+        pygame.draw.rect(compare_screen, TILE_BORDER, back_button, 2, border_radius=8)
+        back_text = header_font.render("Back", True, TEXT_COLOR)
+        compare_screen.blit(back_text, (back_button.centerx - back_text.get_width()//2, 
+                                      back_button.centery - back_text.get_height()//2))
+        
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and back_button.collidepoint(event.pos):
+                    running = False
+                    
+            if event.type == pygame.MOUSEWHEEL:
+                scroll_y -= event.y * 40
+                scroll_y = max(0, min(scroll_y, max_scroll))
+
+    pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("8-Puzzle Solver")
+    return "Comparison completed"
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -1389,8 +1637,9 @@ def main():
     GRID_OFFSET_X = (WIDTH - GRID_WIDTH - STATE_AREA_WIDTH) // 2
     GRID_OFFSET_Y = (HEIGHT - GRID_HEIGHT - 3 * (BUTTON_HEIGHT + BUTTON_SPACING) - 100) // 2
     
-    reset_button_x = GRID_OFFSET_X + (GRID_WIDTH - 2 * BUTTON_WIDTH - BUTTON_SPACING) // 2
+    reset_button_x = GRID_OFFSET_X + (GRID_WIDTH - 3 * BUTTON_WIDTH - 2 * BUTTON_SPACING) // 2
     restart_button_x = reset_button_x + BUTTON_WIDTH + BUTTON_SPACING
+    compare_button_x = restart_button_x + BUTTON_WIDTH + BUTTON_SPACING
     button_y_top = GRID_OFFSET_Y - BUTTON_HEIGHT - BUTTON_SPACING
     
     buttons_count_row1 = 6
@@ -1416,6 +1665,7 @@ def main():
     buttons = [
         {'text': 'Reset', 'rect': pygame.Rect(reset_button_x, button_y_top, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': lambda: 'reset'},
         {'text': 'Restart', 'rect': pygame.Rect(restart_button_x, button_y_top, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': lambda: 'restart'},
+        {'text': 'Compare', 'rect': pygame.Rect(compare_button_x, button_y_top, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': lambda: 'compare'},
         
         {'text': 'BFS', 'rect': pygame.Rect(start_x_buttons_row1 + 0 * (BUTTON_WIDTH + BUTTON_SPACING), button_y_row1, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': bfs_solve},
         {'text': 'DFS', 'rect': pygame.Rect(start_x_buttons_row1 + 1 * (BUTTON_WIDTH + BUTTON_SPACING), button_y_row1, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': dfs_solve},
@@ -1585,7 +1835,21 @@ def main():
                                 else:
                                     last_message = "Backtracking: No solution."
                                 last_time_message = f"Time: {exec_time:.6f} seconds"
-
+                            elif button['text'] == 'Compare':
+                                flat_state_check = [current_state[i][j] for i in range(GRID_SIZE) for j in range(GRID_SIZE)]
+                                if sorted(flat_state_check) != list(range(9)):
+                                    last_message = "Invalid state! Must use numbers 0-8 exactly once."
+                                else:
+                                    last_message = "Comparing algorithms... Please wait."
+                                    screen.fill(BACKGROUND_COLOR)
+                                    draw_grid(screen, current_state, GRID_OFFSET_X, GRID_OFFSET_Y, selected_cell)
+                                    draw_buttons(screen, buttons, mouse_pos)
+                                    draw_state_area(screen, states_history, scroll_offset)
+                                    draw_message(screen, last_message, 35, HEIGHT - 100, MESSAGE_COLOR)
+                                    pygame.display.flip()
+                                    
+                                    result_msg = compare_algorithms(current_state)
+                                    last_message = result_msg
                             elif button['text'] not in ['Reset', 'Restart']:
                                 flat_state_check = [current_state[i][j] for i in range(GRID_SIZE) for j in range(GRID_SIZE)]
                                 if sorted(flat_state_check) != list(range(9)):
