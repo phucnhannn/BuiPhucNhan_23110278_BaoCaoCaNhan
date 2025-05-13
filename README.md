@@ -1,5 +1,5 @@
 # 8-Puzzel Solver
-Sinh viên thực hiện: Bui Phúc Nhân 
+Sinh viên thực hiện: Bùi Phúc Nhân 
 MSSV: 23110278
 Báo cáo đồ án cá nhân bộ môn Trí Tuệ Nhân Tạo
 
