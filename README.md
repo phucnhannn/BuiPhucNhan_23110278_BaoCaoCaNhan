@@ -18,7 +18,7 @@ Báo cáo đồ án cá nhân bộ môn Trí Tuệ Nhân Tạo
   - [3.2 Hướng phát triển](#32-hướng-phát-triển)
 ---
 # 1. Mục tiêu
-Mục tiêu của đồ án này là tìm hiểu, cài đặt và so sánh hiệu quả các thuật toán trí tuệ nhân tạo trong việc giải quyết bài toán 8-Puzzle. Thông qua việc áp dụng nhiều nhóm thuật toán khác nhau như tìm kiếm không có thông tin, tìm kiếm có thông tin, local search,tìm kiếm trong môi trường phức tạp, constraint satisfaction problems và reinforcement learning, báo cáo giúp làm rõ ưu nhược điểm của từng phương pháp. Ngoài ra, việc xây dựng giao diện trực quan bằng pygame giúp quan sát quá trình giải bài toán, từ đó nâng cao hiểu biết về các thuật toán AI, rèn luyện kỹ năng lập trình và tư duy giải quyết vấn đề.
+Mục tiêu của đồ án này là tìm hiểu, cài đặt và so sánh hiệu quả các thuật toán trí tuệ nhân tạo trong việc giải quyết bài toán 8-Puzzle. Thông qua việc áp dụng nhiều nhóm thuật toán khác nhau như tìm kiếm không có thông tin, tìm kiếm có thông tin, local search, tìm kiếm trong môi trường phức tạp, constraint satisfaction problems và reinforcement learning, báo cáo giúp làm rõ ưu nhược điểm của từng phương pháp. Ngoài ra, việc xây dựng giao diện trực quan bằng pygame giúp quan sát quá trình giải bài toán, từ đó nâng cao hiểu biết về các thuật toán AI, rèn luyện kỹ năng lập trình và tư duy giải quyết vấn đề.
 
 ---
 # 2. Nội dung
