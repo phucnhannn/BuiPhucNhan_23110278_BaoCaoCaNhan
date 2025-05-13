@@ -165,7 +165,7 @@ Gif minh họa:
 ## 3.1 Kết quả đạt được
 Quá trình thực hiện project đã giúp hiểu rõ hơn về cách hoạt động của nhiều thuật toán trí tuệ nhân tạo khi giải quyết bài toán 8-Puzzle. Đã áp dụng và so sánh các nhóm thuật toán như tìm kiếm không có thông tin, tìm kiếm có thông tin, local search, tìm kiếm trong môi trường phúc tạp, constraint satisfaction problems và reinforcement learning trên cùng một bài toán cụ thể.
 
-Kết quả thực nghiệm cho thấy các thuật toán như BFS, UCS, A*, IDA* thường tìm được lời giải ngắn nhất và ổn định, trong khi các thuật toán như DFS, Greedy hoặc Hill Climbing có thể cho kết quả nhanh nhưng không phải lúc nào cũng tối ưu. Các thuật toán local search như Simulated Annealing, Beam Search, Genetic Algorithm cho tốc độ giải nhanh và hiệu quả tốt trong nhiều trường hợp, nhưng đôi khi vẫn có thể bị kẹt ở nghiệm cục bộ.
+Kết quả thực nghiệm cho thấy các thuật toán như BFS, UCS, A*, IDA* thường tìm được lời giải ngắn nhất và ổn định, trong khi các thuật toán như DFS, Greedy hoặc Hill Climbing có thể cho kết quả nhanh nhưng không phải lúc nào cũng tối ưu. Các thuật toán local search như Simulated Annealing, Beam Search, Genetic Algorithm,... cho tốc độ giải nhanh và hiệu quả tốt trong nhiều trường hợp, nhưng đôi khi vẫn có thể bị kẹt ở nghiệm cục bộ.
 
 Việc thử nghiệm nhiều thuật toán khác nhau giúp nhận ra vai trò quan trọng của heuristic, tính ngẫu nhiên và các yếu tố ảnh hưởng đến hiệu quả giải quyết vấn đề. Ngoài ra, quá trình thực hiện project cũng giúp nâng cao kỹ năng phân tích, đánh giá và lựa chọn thuật toán phù hợp cho từng loại bài toán AI.
 
