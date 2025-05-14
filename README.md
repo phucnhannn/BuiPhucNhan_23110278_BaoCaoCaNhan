@@ -44,7 +44,7 @@ Thuật toán IDDFS (Iterative Deepening Depth-First Search) là sự kết hợ
 Gif minh họa:
 ![Thuật toán IDDFS](images/IDDFS.gif)
 
-### 2.1.4 Thuật toán Uniformed Cost Searching (UCS)
+### 2.1.4 Thuật toán Uniform Cost Search (UCS)
 Thuật toán Uniform Cost Search (UCS) là một biến thể của BFS nhưng có xét đến chi phí đường đi. UCS sử dụng hàng đợi ưu tiên (priority queue), luôn mở rộng trạng thái có tổng chi phí nhỏ nhất từ trạng thái ban đầu đến trạng thái hiện tại. Trong 8-Puzzle, mỗi bước di chuyển thường có chi phí bằng nhau nên UCS sẽ tìm được lời giải ngắn nhất giống như BFS. Tuy nhiên, UCS có thể áp dụng tốt cho các bài toán mà chi phí di chuyển giữa các trạng thái khác nhau. Nhược điểm là tốc độ chậm nếu không gian trạng thái lớn, do phải kiểm tra và cập nhật chi phí liên tục. 
 
 Gif minh họa:
