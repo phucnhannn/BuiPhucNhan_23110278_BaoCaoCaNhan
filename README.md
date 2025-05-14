@@ -93,7 +93,7 @@ Gif minh họa:
 ![Genetic](images/GA.gif)
 
 ### 2.3.3 Thuật toán Simple Hill Climbing 
-Thuật toán Simple Hill Climbing là một phương pháp tìm kiếm địa phương, luôn chọn trạng thái kề có giá trị heuristic tốt hơn hiện tại (thường là tổng khoảng cách Manhattan nhỏ hơn). Quá trình lặp lại cho đến khi không còn trạng thái nào tốt hơn, khi đó thuật toán có thể mắc kẹt tại điểm cực trị cục bộ (local optimum). Ưu điểm là thuật toán đơn giản, tốc độ nhanh, nhưng nhược điểm là dễ bị kẹt và không đảm bảo tìm được lời giải tối ưu.
+Thuật toán Simple Hill Climbing là một phương pháp tìm kiếm địa phương, ở bước đầu tiên thì thuật toán sẽ chọn ngẫu nhiên một trạng thái kề, nhưng sau đó thì thuật toán luôn chọn trạng thái kề có giá trị heuristic tốt hơn hiện tại (trong trò chơi 8-Puzzel là tổng khoảng cách Manhattan nhỏ hơn). Quá trình lặp lại cho đến khi không còn trạng thái nào tốt hơn, khi đó thuật toán có thể mắc kẹt tại điểm cực trị cục bộ (local optimum). Ưu điểm là thuật toán đơn giản, tốc độ nhanh, nhưng nhược điểm là dễ bị kẹt và không đảm bảo tìm được lời giải tối ưu.
 
 Gif minh họa:
 ![SHC](images/SHC.gif)
