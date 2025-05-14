@@ -143,7 +143,7 @@ Gif minh họa:
 ## 2.5 Các thuật toán Constraint Satisfaction Problems (CSPs)
 Nhóm thuật toán CSPs giải quyết các bài toán ràng buộc bằng cách tìm kiếm các trạng thái thỏa mãn tất cả điều kiện đặt ra. Các thuật toán như Backtracking Search, Min-Conflicts Search thường được dùng cho các bài toán như xếp lịch, sudoku, 8-queens, và có thể áp dụng cho 8-Puzzle khi biểu diễn dưới dạng ràng buộc.
 ### 2.5.1 Thuật toán Backtracking Search
-Thuật toán Backtracking Search (tìm kiếm quay lui) thử điền từng giá trị vào các ô của bảng 8-Puzzle theo thứ tự, mỗi lần điền sẽ kiểm tra tính hợp lệ (không trùng số, số nghịch thế hợp lệ). Nếu gặp trường hợp không thể tiếp tục, thuật toán sẽ quay lui để thử giá trị khác. Quá trình này lặp lại cho đến khi tìm được trạng thái thỏa mãn điều kiện đích hoặc hết các khả năng. Ưu điểm là đảm bảo tìm được lời giải nếu tồn tại, nhưng nhược điểm là tốc độ chậm khi không gian trạng thái lớn do phải thử nhiều khả năng.
+Thuật toán Backtracking Search (tìm kiếm quay lui) thử điền từng giá trị vào các ô của bảng 8-Puzzle, mỗi lần điền sẽ kiểm tra tính hợp lệ (không trùng số, số nghịch thế hợp lệ). Nếu gặp trường hợp không thể tiếp tục, thuật toán sẽ quay lui để thử giá trị khác. Quá trình này lặp lại cho đến khi tìm được trạng thái thỏa mãn điều kiện đích hoặc hết các khả năng. Ưu điểm là đảm bảo tìm được lời giải nếu tồn tại, nhưng nhược điểm là tốc độ chậm khi không gian trạng thái lớn do phải thử nhiều khả năng.
 
 Gif minh họa: 
 ![Backtracking](images/Backtracking.gif)
