@@ -98,6 +98,7 @@ Gif minh họa:
 Thuật toán Genetic Algorithm (di truyền) mô phỏng quá trình tiến hóa tự nhiên để tìm lời giải cho 8-Puzzle. Mỗi cá thể trong quần thể là một trạng thái của trò chơi. Thuật toán bắt đầu với một quần thể các trạng thái ngẫu nhiên, sau đó lặp lại các bước: đánh giá độ thích nghi (fitness), chọn lọc các cá thể tốt nhất, lai ghép (crossover) và đột biến (mutation) để tạo ra thế hệ mới. Quá trình này tiếp tục cho đến khi tìm được trạng thái đích hoặc đạt số thế hệ tối đa. Genetic Algorithm có thể tìm ra lời giải trong không gian trạng thái lớn, nhưng không đảm bảo tối ưu và kết quả phụ thuộc vào tham số cũng như ngẫu nhiên.
 
 Gif minh họa:
+
 ![Genetic](images/demo-ga.gif)
 
 ### 2.3.3 Thuật toán Simple Hill Climbing 
@@ -125,6 +126,7 @@ Gif minh họa:
 Thuật toán Simulated Annealing mô phỏng quá trình tôi luyện kim loại, cho phép nhận các trạng thái kém hơn với xác suất giảm dần theo nhiệt độ. Ở mỗi bước, thuật toán chọn ngẫu nhiên một trạng thái kề, nếu tốt hơn thì nhận luôn, nếu kém hơn thì vẫn có thể nhận dựa trên xác suất. Nhiệt độ sẽ giảm dần sau mỗi bước, giúp thuật toán có khả năng thoát khỏi điểm cực trị cục bộ. Ưu điểm là có thể tìm được lời giải tốt trong không gian lớn, nhưng kết quả phụ thuộc vào tham số và không đảm bảo tối ưu tuyệt đối.
 
 Gif minh họa:
+
 ![SAHC](images/demo-sa.gif)
 
 ### So sánh hiệu suất của các thuật toán tìm kiếm Local Search
@@ -137,6 +139,7 @@ Nhóm thuật toán này được thiết kế để giải quyết các bài to
 Thuật toán Searching with Partially Observation áp dụng cho trường hợp trạng thái ban đầu của 8-Puzzle không được quan sát đầy đủ, chỉ biết một phần vị trí các ô. Thuật toán sẽ sinh ra tất cả các trạng thái ban đầu có thể dựa trên thông tin quan sát được, sau đó thực hiện tìm kiếm lời giải cho từng trạng thái này (thường dùng BFS hoặc DFS). Nếu tìm được lời giải ở bất kỳ trạng thái nào, thuật toán sẽ trả về đường đi tương ứng. Phương pháp này giúp giải quyết bài toán trong môi trường không chắc chắn, nhưng có thể tốn nhiều thời gian nếu số trạng thái khả dĩ lớn.
 
 Gif minh họa:
+
 ![PO](images/demo-po.gif)
 
 ### 2.4.2 Thuật toán And-Or search
