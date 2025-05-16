@@ -945,6 +945,129 @@ def backtracking_solve(goal=None, max_depth=15, screen=None, grid_offset_x=None,
     elapsed_time = time.perf_counter() - start_time
     return all_states, elapsed_time
 
+def backtracking_with_forward_checking_solve(goal=None, max_depth=15, screen=None, grid_offset_x=None, grid_offset_y=None):
+    start_time = time.perf_counter()
+    
+    if goal is None:
+        goal = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Nếu không truyền goal thì dùng trạng thái đích mặc định
+    
+    # Khởi tạo trạng thái rỗng
+    empty_state = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+    used_values = set()  # Tập hợp các giá trị đã dùng
+    all_states = []      # Lưu lại các trạng thái đã sinh ra
+    
+    # Thứ tự duyệt các ô (có thể ngẫu nhiên hoặc theo thứ tự)
+    cells_order = [(r, c) for r in range(GRID_SIZE) for c in range(GRID_SIZE)]
+    random.shuffle(cells_order)  # Thứ tự duyệt ngẫu nhiên
+    
+    # Lưu vị trí đích của từng giá trị
+    goal_positions = {}
+    for r in range(GRID_SIZE):
+        for c in range(GRID_SIZE):
+            goal_positions[goal[r][c]] = (r, c)
+    
+    def count_inversions(state):
+        # Đếm số nghịch thế để kiểm tra trạng thái hợp lệ
+        flat = []
+        for i in range(GRID_SIZE):
+            for j in range(GRID_SIZE):
+                if state[i][j] is not None and state[i][j] != 0:
+                    flat.append(state[i][j])
+        inversions = 0
+        for i in range(len(flat)):
+            for j in range(i + 1, len(flat)):
+                if flat[i] > flat[j]:
+                    inversions += 1
+        return inversions
+    
+    def is_valid_state(state):
+        # Kiểm tra trạng thái hiện tại có hợp lệ không (dựa vào số nghịch thế)
+        filled_count = sum(1 for r in range(GRID_SIZE) for c in range(GRID_SIZE) if state[r][c] is not None)
+        if filled_count == 8:
+            empty_pos = next((r, c) for r in range(GRID_SIZE) for c in range(GRID_SIZE) if state[r][c] is None)
+            complete_state = [row[:] for row in state]
+            complete_state[empty_pos[0]][empty_pos[1]] = 0
+            inversions = count_inversions(complete_state)
+            if inversions % 2 != 0:
+                return False
+        return True
+    
+    def get_domain(state, r, c):
+        # Tính toán domain của ô (r, c) dựa trên các giá trị đã dùng và ràng buộc khác
+        domain = []
+        for value in range(9):
+            if value not in used_values:
+                # Forward checking: nếu ô này là ô cuối cùng, cần kiểm tra tính hợp lệ
+                if len(used_values) == 8 and value != 0:
+                    # Kiểm tra nếu đặt value vào ô cuối thì trạng thái có hợp lệ không
+                    temp_state = [row[:] for row in state]
+                    temp_state[r][c] = value
+                    if is_valid_state(temp_state):
+                        domain.append(value)
+                else:
+                    domain.append(value)
+        
+        # Sắp xếp domain theo ưu tiên: giá trị tương ứng với vị trí đích
+        if (r, c) in goal_positions.values():
+            target_value = next(val for val, pos in goal_positions.items() if pos == (r, c))
+            if target_value in domain:
+                domain.remove(target_value)
+                domain.insert(0, target_value)  # Đặt giá trị đích lên đầu domain
+                
+        return domain
+    
+    def recursive_backtrack_fc(state, cell_idx):
+        nonlocal all_states
+        
+        # Vẽ trạng thái hiện tại nếu có screen
+        if screen:
+            display_state = [[0 if cell is None else cell for cell in row] for row in state]
+            screen.fill(BACKGROUND_COLOR)
+            draw_grid(screen, display_state, grid_offset_x, grid_offset_y)
+            font = pygame.font.Font(None, 24)
+            msg = f"Backtracking+FC progress: {len(used_values)}/9 numbers placed"
+            text = font.render(msg, True, MESSAGE_COLOR)
+            screen.blit(text, (35, HEIGHT - 100))
+            pygame.display.flip()
+            pygame.time.delay(50)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+        
+        # Nếu đã điền hết các ô, kiểm tra xem có đạt trạng thái đích không
+        if cell_idx >= len(cells_order):
+            current_display = [[0 if cell is None else cell for cell in row] for row in state]
+            return current_display == goal
+        
+        r, c = cells_order[cell_idx]
+        domain = get_domain(state, r, c)
+        
+        # Forward checking: nếu domain rỗng, cắt tỉa nhánh này
+        if not domain:
+            return False
+        
+        for value in domain:
+            state[r][c] = value
+            used_values.add(value)
+            current_display = [[0 if cell is None else cell for cell in row] for row in state]
+            all_states.append(copy.deepcopy(current_display))
+            
+            # Đệ quy sang ô tiếp theo nếu trạng thái hợp lệ
+            if is_valid_state(state) and recursive_backtrack_fc(state, cell_idx + 1):
+                return True
+                
+            # Backtrack nếu không thành công
+            state[r][c] = None
+            used_values.remove(value)
+            
+        return False
+    
+    result = recursive_backtrack_fc(empty_state, 0)
+    elapsed_time = time.perf_counter() - start_time
+    
+    return all_states, elapsed_time
+
 def state_to_tuple(state):
     # Chuyển ma trận 2D thành tuple lồng nhau để dùng làm key trong dict (bất biến)
     return tuple(map(tuple, state))
@@ -1419,6 +1542,7 @@ def compare_algorithms(puzzle_state):
         
         {"name": "Backtracking Search", "func": backtracking_solve, "category": "Constraint Satisfaction"},
         {"name": "Min-Conflicts Search", "func": min_conflicts_solve, "category": "Constraint Satisfaction"},
+        {"name": "Backtracking+FC", "func": lambda start, goal: backtracking_with_forward_checking_solve(goal=goal)[0], "category": "Constraint Satisfaction"},
         
         {"name": "Q-Learning", "func": q_learning_solve, "category": "Reinforcement Learning"}
     ]
@@ -1642,20 +1766,21 @@ def main():
     compare_button_x = restart_button_x + BUTTON_WIDTH + BUTTON_SPACING
     button_y_top = GRID_OFFSET_Y - BUTTON_HEIGHT - BUTTON_SPACING
     
+    # Cập nhật số lượng nút ở mỗi hàng
     buttons_count_row1 = 6
-    buttons_count_row2 = 6
-    buttons_count_row3 = 6 
-    buttons_count_row4 = 1 
-
+    buttons_count_row2 = 6 
+    buttons_count_row3 = 6
+    buttons_count_row4 = 2
+    
     total_buttons_width_row1 = buttons_count_row1 * BUTTON_WIDTH + (buttons_count_row1 - 1) * BUTTON_SPACING
     total_buttons_width_row2 = buttons_count_row2 * BUTTON_WIDTH + (buttons_count_row2 - 1) * BUTTON_SPACING
     total_buttons_width_row3 = buttons_count_row3 * BUTTON_WIDTH + (buttons_count_row3 - 1) * BUTTON_SPACING
-    total_buttons_width_row4 = buttons_count_row4 * BUTTON_WIDTH + (buttons_count_row4 - 1) * BUTTON_SPACING 
+    total_buttons_width_row4 = buttons_count_row4 * BUTTON_WIDTH + (buttons_count_row4 - 1) * BUTTON_SPACING
     
     start_x_buttons_row1 = GRID_OFFSET_X + (GRID_WIDTH - total_buttons_width_row1) // 2
     start_x_buttons_row2 = GRID_OFFSET_X + (GRID_WIDTH - total_buttons_width_row2) // 2
     start_x_buttons_row3 = GRID_OFFSET_X + (GRID_WIDTH - total_buttons_width_row3) // 2
-    start_x_buttons_row4 = GRID_OFFSET_X + (GRID_WIDTH - total_buttons_width_row4) // 2 
+    start_x_buttons_row4 = GRID_OFFSET_X + (GRID_WIDTH - total_buttons_width_row4) // 2
     
     button_y_row1 = GRID_OFFSET_Y + GRID_HEIGHT + BUTTON_SPACING
     button_y_row2 = button_y_row1 + BUTTON_HEIGHT + BUTTON_SPACING
@@ -1688,7 +1813,8 @@ def main():
         {'text': 'MinConf', 'rect': pygame.Rect(start_x_buttons_row3 + 4 * (BUTTON_WIDTH + BUTTON_SPACING), button_y_row3, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': min_conflicts_solve},
         {'text': 'BT', 'rect': pygame.Rect(start_x_buttons_row3 + 5 * (BUTTON_WIDTH + BUTTON_SPACING), button_y_row3, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': backtracking_solve},
         
-        {'text': 'Q-Learn', 'rect': pygame.Rect(start_x_buttons_row4 + 0 * (BUTTON_WIDTH + BUTTON_SPACING), button_y_row4, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': q_learning_solve},
+        {'text': 'BT-FC', 'rect': pygame.Rect(start_x_buttons_row4 + 0 * (BUTTON_WIDTH + BUTTON_SPACING), button_y_row4, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': backtracking_with_forward_checking_solve},
+        {'text': 'Q-Learn', 'rect': pygame.Rect(start_x_buttons_row4 + 1 * (BUTTON_WIDTH + BUTTON_SPACING), button_y_row4, BUTTON_WIDTH, BUTTON_HEIGHT), 'func': q_learning_solve},
     ]
     
     current_state = [[0] * GRID_SIZE for _ in range(GRID_SIZE)]
@@ -1835,6 +1961,32 @@ def main():
                                 else:
                                     last_message = "Backtracking: No solution."
                                 last_time_message = f"Time: {exec_time:.6f} seconds"
+                            elif button['text'] == 'BT-FC':
+                                last_message = "Running Backtracking with Forward Checking..."
+                                last_time_message = ""
+                                states_history = []
+                                scroll_offset = 0
+                                screen.fill(BACKGROUND_COLOR)
+                                draw_grid(screen, current_state, GRID_OFFSET_X, GRID_OFFSET_Y, selected_cell)
+                                draw_buttons(screen, buttons, mouse_pos)
+                                draw_state_area(screen, states_history, scroll_offset)
+                                draw_message(screen, last_message, 35, HEIGHT - 100, MESSAGE_COLOR)
+                                pygame.display.flip()
+
+                                solution_states, exec_time = backtracking_with_forward_checking_solve(
+                                    goal=GOAL_STATE,
+                                    screen=screen,
+                                    grid_offset_x=GRID_OFFSET_X,
+                                    grid_offset_y=GRID_OFFSET_Y
+                                )
+                                if solution_states:
+                                    current_state = copy.deepcopy(solution_states[-1])
+                                    states_history = solution_states
+                                    last_message = "Backtracking with FC completed!"
+                                else:
+                                    last_message = "Backtracking with FC: No solution."
+                                last_time_message = f"Time: {exec_time:.6f} seconds"
+
                             elif button['text'] == 'Compare':
                                 flat_state_check = [current_state[i][j] for i in range(GRID_SIZE) for j in range(GRID_SIZE)]
                                 if sorted(flat_state_check) != list(range(9)):

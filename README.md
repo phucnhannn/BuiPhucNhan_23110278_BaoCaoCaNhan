@@ -154,6 +154,12 @@ Thuật toán Min-Conflicts Search là một phương pháp giải bài toán r�
 Gif minh họa:
 ![Min-Conflicts](images/Min-Conflict.gif)
 
+### 2.5.3 Thuật toán Backtracking with Forward Checking
+Thuật toán Backtracking with Forward Checking là sự kết hợp giữa tìm kiếm quay lui thông thường với kỹ thuật kiểm tra phía trước, nhằm cắt tỉa không gian tìm kiếm sớm hơn. Trong 8-Puzzle, thuật toán hoạt động bằng cách từng bước điền các số vào bàn trống, nhưng mỗi khi đặt một giá trị mới, thuật toán ngay lập tức cập nhật domain (tập giá trị hợp lệ) của các ô chưa điền để loại bỏ các giá trị không thể dùng được. Các domain được ưu tiên sắp xếp theo heuristic (như khoảng cách Manhattan) để tìm kiếm hướng đến trạng thái đích nhanh hơn. Khi phát hiện một domain rỗng, thuật toán sẽ quay lui ngay lập tức mà không cần mở rộng thêm nhánh đó. Ưu điểm của BT-FC là khả năng phát hiện sớm các đường dẫn không thể đến đích, giúp giảm đáng kể số lượng trạng thái cần khám phá so với backtracking đơn thuần, nhưng nhược điểm là tốn thêm bộ nhớ và thời gian để duy trì và cập nhật các domain.
+
+Gif minh họa
+![BT-FC](images/BT-FC.gif)
+
 ## 2.6 Các thuật toán Reinforcement Learning
 Nhóm thuật toán Reinforcement Learning (học tăng cường) giúp tác nhân học cách hành động tối ưu thông qua tương tác với môi trường và nhận phần thưởng. Thuật toán Q-Learning là đại diện tiêu biểu, cho phép tác nhân tự học chính sách giải quyết 8-Puzzle mà không cần biết trước mô hình môi trường, nhưng cần nhiều thời gian huấn luyện và bộ nhớ.
 ### 2.6.1 Thuật toán Q-Learning
